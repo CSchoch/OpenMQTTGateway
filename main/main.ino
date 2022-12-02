@@ -202,6 +202,7 @@ static void* eClient = nullptr;
 static unsigned long last_ota_activity_millis = 0;
 #if defined(ESP8266) || defined(ESP32)
 static bool mqtt_secure = MQTT_SECURE_DEFAULT;
+static bool mqtt_cert_validate = MQTT_CERT_VALIDATE_DEFAULT;
 static uint8_t mqtt_ss_index = MQTT_SECURE_SELF_SIGNED_INDEX_DEFAULT;
 static String mqtt_cert = "";
 static String ota_server_cert = "";
@@ -709,8 +710,12 @@ void setup() {
 
 #if defined(ESP8266) || defined(ESP32)
   if (mqtt_secure) {
-    eClient = new WiFiClientSecure;
-    setupTLS(MQTT_SECURE_SELF_SIGNED, mqtt_ss_index);
+    if (mqtt_cert_validate) {
+      setupTLS(MQTT_SECURE_SELF_SIGNED, mqtt_ss_index);
+    } else {
+      WiFiClientSecure* sClient = (WiFiClientSecure*)eClient;
+      sClient->setInsecure();
+    }
   } else {
     eClient = new WiFiClient;
   }
