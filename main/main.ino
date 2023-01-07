@@ -710,6 +710,7 @@ void setup() {
 
 #if defined(ESP8266) || defined(ESP32)
   if (mqtt_secure) {
+    eClient = new WiFiClientSecure;
     if (mqtt_cert_validate) {
       setupTLS(MQTT_SECURE_SELF_SIGNED, mqtt_ss_index);
     } else {
