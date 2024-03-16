@@ -20,17 +20,31 @@ With Home Assistant, this command is directly available through MQTT auto discov
 `mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"cmd":"status"}'`
 
 ## Auto discovery
-You can deactivate the MQTT auto discovery function, this function enables to automatically create devices/entities with Home Assistant convention.
+You can deactivate the MQTT auto-discovery function, which enables you to create devices/entities with the Home Assistant convention automatically. This function is set to `true` at startup for 30 minutes unless you deactivate it.
+
 ### Deactivate
-`mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"discovery":false}'`
+`mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"disc":false}'`
 
 ### Activate
-`mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"discovery":true}'`
+`mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"disc":true}'`
 
-If you want the settings to be kept upon gateway restart, you can publish the command with the retain flag.
+If you want the settings to be kept upon gateway restart, you can save the state by adding `"save":true` (ESP32 only).
+`mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"disc":false, "save":true}'`
 
 ::: tip
-Auto discovery is enable by default on release binaries, on platformio (except for UNO). With Arduino IDE please read the [advanced configuration section](../upload/advanced-configuration#auto-discovery) of the documentation.
+Auto discovery is enabled by default on release binaries and platformio (except for UNO). With Arduino IDE, please read the [advanced configuration section](../upload/advanced-configuration#auto-discovery) of the documentation.
+:::
+
+## AutoDiscovery compatible with OpenHAB (default: false)
+OpenHAB does not support the key `is_defined` in the json template, to remove it at runtime and make the auto discovery compatible you can use the following command with a retain flag.
+
+`mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"ohdisc":true}'`
+
+If you want the settings to be kept upon gateway restart, you can save the state by adding `"save":true` (ESP32 only).
+`mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"ohdisc":true, "save":true}'`
+
+::: tip
+This command can also be used with other controllers that does not support the is_defined key.
 :::
 
 ## Change the WiFi credentials
@@ -40,6 +54,12 @@ Auto discovery is enable by default on release binaries, on platformio (except f
 ::: tip
 If the new connection fails the gateway will fallback to the previous connection.
 :::
+
+## Change the gateway password
+
+The password must be 8 characters minimum.
+
+`mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"gw_pass":"12345678"}'`
 
 ## Change the MQTT broker credentials
 ```
@@ -52,7 +72,7 @@ mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m
   "mqtt_secure": "false"
 }'
 ```
-::: info
+::: tip INFO
 By default this function is not available on the pre built binary of RFBridge, in order to have less code size and enable to have OTA update working properly. So as to enable it remove from the rf bridge env:
 ```
 build_flags = '-UMQTTsetMQTT'
@@ -76,7 +96,7 @@ mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m
   "gateway_name": "name"
 }'
 ```
-::: info
+::: tip INFO
 This will change the subscribed and published mqtt_topic/gateway_name that the gateway uses. No parameters are mandatory, the current topic or gateway name will be used if not supplied.
 :::
 
@@ -104,20 +124,33 @@ The `mqtt_cert_index` value corresponds to the 0 to X index of the `certs_array`
 
 # Firmware update from MQTT (ESP only)
 
-The gateway can be updated through an MQTT message by providing a JSON formatted message with a version number, OTA password (optional, see below), and URL to fetch the update from.  
+When the gateway used is from a standard ESP32 environment [listed and defined here](https://github.com/1technophile/OpenMQTTGateway/blob/development/environments.ini), it can be updated through a simple MQTT command:
+```
+mosquitto_pub -t "home/OpenMQTTGateway_ESP32_BLE/commands/MQTTtoSYS/firmware_update" -m '{
+  "version": "latest"
+}'
+```
+This would download the latest version firmware binary from Github and install it.
+It can be used with version 1.5.0 and above.
 
-To enable this functionality, `MQTT_HTTPS_FW_UPDATE` will need to be defined or the line that defines in in user_config.h will need to be uncommented.
+Note that this update option is also autodiscovered through Home Assistant convention, you can update directly from the device page with 2 clicks.
 
-::: tip
-If using an unsecure MQTT broker it is **highly recommended** to disable the password checking by setting the macro `MQTT_HTTPS_FW_UPDATE_USE_PASSWORD` to 0 (default is 1 (enabled)), otherwise a clear text password may be sent over the network.  
+![Home Assistant OTA Update](../img/OpenMQTTGateway-OTA-Update-Home-Assistant.png)
 
-The `server_cert` parameter is optional. If the update server has changed or certificate updated or not set in `user_config.h` then you can provide the certificate here.
-:::
+You can also indicate the target version to update:
+```
+mosquitto_pub -t "home/OpenMQTTGateway_ESP32_BLE/commands/MQTTtoSYS/firmware_update" -m '{
+  "version": "v1.2.0"
+}'
+```
 
-### Example firmware update message:
+OpenMQTTGateway checks at start and every hour if an update is available.
+
+Alternatively if you want to choose the update URL you can use the command below (ESP32 and ESP8266):
+
 Without certificate, in this case we will use the root certificate defined in User_config.h
 ```
-mosquitto_pub -t "home/OpenMQTTGateway_ESP32_BLE/commands/firmware_update" -m '{
+mosquitto_pub -t "home/OpenMQTTGateway_ESP32_BLE/commands/MQTTtoSYS/firmware_update" -m '{
   "version": "test",
   "password": "OTAPASSWORD",
   "url": "https://github.com/1technophile/OpenMQTTGateway/releases/download/v0.9.12/esp32dev-ble-firmware.bin"
@@ -126,7 +159,7 @@ mosquitto_pub -t "home/OpenMQTTGateway_ESP32_BLE/commands/firmware_update" -m '{
 
 With certificate:
 ```
-mosquitto_pub -t "home/OpenMQTTGateway_ESP32_BLE/commands/firmware_update" -m '{
+mosquitto_pub -t "home/OpenMQTTGateway_ESP32_BLE/commands/MQTTtoSYS/firmware_update" -m '{
   "version": "test",
   "password": "OTAPASSWORD",
   "url": "https://github.com/1technophile/OpenMQTTGateway/releases/download/v0.9.12/esp32dev-ble-firmware.bin",
@@ -156,9 +189,24 @@ CAUw7C29C79Fv1C5qfPrmAESrciIxpg0X40KPMbp1ZWVbd4=
 
 A bash script is available [here](ota_command_cert.zip) to simplify the use of the `server_cert` parameter.  
 
+
+To enable this functionality, `MQTT_HTTPS_FW_UPDATE` will need to be defined or the line that defines in in user_config.h will need to be uncommented.
+
+::: tip
+If using an unsecure MQTT broker it is **highly recommended** to disable the password checking by setting the macro `MQTT_HTTPS_FW_UPDATE_USE_PASSWORD` to 0 (default is 1 (enabled)), otherwise a clear text password may be sent over the network.  
+
+The `server_cert` parameter is optional. If the update server has changed or certificate updated or not set in `user_config.h` then you can provide the certificate here.
+:::
+
 ::: warning
 The pre-built binaries for **rfbridge** and **avatto-bakeey-ir** have the above WiFi and MQTT broker credentials and the Firmware update via MQTT options disabled. This is due to the restricted available flash, so as to still be able to use OTA firmware updates for these boards.
 :::
+
+## Change the LED indicator brightness
+
+Minimum: 0, Maximum: 255, Default defined by DEFAULT_ADJ_BRIGHTNESS
+
+`mosquitto_pub -t "home/OpenMQTTGateway/commands/MQTTtoSYS/config" -m '{"brightness":200}'`
 
 # State LED usage
 

@@ -44,6 +44,16 @@ extern void RN8209toMQTT();
 #endif
 
 #ifndef TimeBetweenReadingRN8209
-#  define TimeBetweenReadingRN8209 10000 // time between 2 RN8209 readings in ms
+#  define TimeBetweenReadingRN8209 500 // time between 2 RN8209 readings in ms
+#endif
+
+#ifndef TimeBetweenPublishingRN8209
+#  define TimeBetweenPublishingRN8209 60000 // time between 2 RN8209 publishing in ms
+#endif
+#ifndef MinCurrentThreshold
+#  define MinCurrentThreshold 0.1 // (A) Minimum current change that will trigger the publishing of the RN8209 measurements
+#endif
+#ifndef MinVoltageThreshold
+#  define MinVoltageThreshold 2 // (V) Minimum voltage change that will trigger the publishing of the RN8209 measurements
 #endif
 #endif

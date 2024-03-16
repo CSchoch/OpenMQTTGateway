@@ -3,3 +3,11 @@
 *_env.ini
 **/.DS_Store
 node_modules
+*.ps1
+main/certs/private*
+lib/*
+!lib/esp32-bt-lib
+CMakeLists.txt
+dependencies.lock
+sdkconfig.*
+!sdkconfig.defaults

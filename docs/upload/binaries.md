@@ -5,8 +5,8 @@ Nevertheless you will not be able to change advanced parameters; if you want to 
 Download the binary corresponding to your board and gateway [here](https://github.com/1technophile/OpenMQTTGateway/releases) from github and uncompress it.
 
 ## ESP32
-* Download the bootloader [here](https://github.com/espressif/arduino-esp32/raw/master/tools/sdk/esp32/bin/bootloader_dio_80m.bin)
-* Download the boot_app0 from [here](https://github.com/espressif/arduino-esp32/raw/master/tools/partitions/boot_app0.bin)
+* Download the bootloader [here](https://github.com/espressif/arduino-esp32/raw/2.0.5/tools/sdk/esp32/bin/bootloader_dio_80m.bin)
+* Download the boot_app0 from [here](https://github.com/espressif/arduino-esp32/raw/2.0.5/tools/partitions/boot_app0.bin)
 * Download the flash tool utility from espressif:
 https://www.espressif.com/en/products/hardware/esp32/resources
 * Uncompress the package
@@ -73,7 +73,7 @@ If you want to upload the ready-to-go binary from Linux (or any other OS where y
 https://github.com/marcelstoer/nodemcu-pyflasher/releases
 * Execute `NodeMCU-PyFlasher`
 * Set the files and parameters as below:
-![](../img/OpenMQTTgateway_NodeMCU_PyFlasher.png)
+![NodeMCU Py Flasher](../img/OpenMQTTgateway_NodeMCU_PyFlasher.png)
 * Connect your board and select the COM port 
 * Click on *FlashNodeMCU*
 The upload details appears.

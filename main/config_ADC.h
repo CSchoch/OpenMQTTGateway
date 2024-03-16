@@ -28,6 +28,7 @@
 
 extern void setupADC();
 extern void ADCtoMQTT();
+extern void MeasureADC();
 /*----------------------------USER PARAMETERS-----------------------------*/
 /*-------------DEFINE YOUR MQTT PARAMETERS BELOW----------------*/
 #define ADCTOPIC "/ADCtoMQTT"
@@ -45,7 +46,7 @@ extern void ADCtoMQTT();
 #endif
 
 #ifndef MinTimeInSecBetweenPublishingADC
-#  define MinTimeInSecBetweenPublishingADC 0 // pub at least at defined interval - usefull to publish values in case they do not change so much ; 0 = disabled
+#  define MinTimeInSecBetweenPublishingADC 0 // pub at least at defined interval - useful to publish values in case they do not change so much ; 0 = disabled
 #endif
 
 /*-------------------PIN DEFINITIONS----------------------*/

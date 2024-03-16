@@ -6,8 +6,6 @@
 #  include "NimBLEDevice.h"
 #  include "config_BT.h"
 
-extern void pubBT(JsonObject& data);
-
 class zBLEConnect {
 public:
   NimBLEClient* m_pClient;
@@ -38,6 +36,15 @@ class DT24_connect : public zBLEConnect {
 
 public:
   DT24_connect(NimBLEAddress& addr) : zBLEConnect(addr) {}
+  void publishData() override;
+};
+
+class BM2_connect : public zBLEConnect {
+  //std::vector<uint8_t> m_data;
+  void notifyCB(NimBLERemoteCharacteristic* pChar, uint8_t* pData, size_t length, bool isNotify);
+
+public:
+  BM2_connect(NimBLEAddress& addr) : zBLEConnect(addr) {}
   void publishData() override;
 };
 
